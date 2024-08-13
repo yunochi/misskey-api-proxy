@@ -5,7 +5,7 @@ import { ApiProxyService } from './api-proxy.service';
 export class ApiProxyController {
   private logger = new Logger('ApiProxyController');
   constructor(private readonly apiProxyService: ApiProxyService) {}
-  @Get('i/get')
+  @Get('i/get-userinfo')
   public async getMyUserInfo(
     @Headers('x-forwarded-for') remote_ip: string,
     @Headers('authorization') auth: string,
