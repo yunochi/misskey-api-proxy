@@ -37,17 +37,26 @@ export class ApiProxyService {
     );
     this.logger.log(`user ${data?.username} login`);
     if (this.autoRevokeToken === 'yes') {
+      const token = auth?.slice(7);
+      this.logger.log(`delete token: ${token}...`);
       await firstValueFrom(
-        this.httpService.post(`${this.misskey_url}/api/i/revoke-token`).pipe(
-          catchError((error: AxiosError) => {
-            this.logger.error(error.response?.data);
-            throw new HttpException(
-              error.response?.data ?? 'Error',
-              error.status ?? 500,
-            );
-          }),
-        ),
+        this.httpService
+          .post(
+            `${this.misskey_url}/api/i/revoke-token`,
+            { token: token },
+            { headers: { Authorization: auth, 'x-forwarded-for': remote_ip } },
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              this.logger.error(error.response?.data);
+              throw new HttpException(
+                error.response?.data ?? 'Error',
+                error.status ?? 500,
+              );
+            }),
+          ),
       );
+      this.logger.log(`token ${token} deleted`);
     }
     return data;
   }
