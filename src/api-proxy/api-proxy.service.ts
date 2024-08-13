@@ -33,6 +33,7 @@ export class ApiProxyService {
           }),
         ),
     );
+    this.logger.log(data);
     return data;
   }
 }
