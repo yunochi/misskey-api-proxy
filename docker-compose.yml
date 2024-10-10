@@ -1,0 +1,8 @@
+services:
+  api-proxy:
+    build: .
+    restart: always
+    ports:
+      - "14438:14438"
+    volumes:
+      - "./config.env:/workspace/config.env:ro"
