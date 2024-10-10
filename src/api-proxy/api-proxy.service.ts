@@ -38,30 +38,37 @@ export class ApiProxyService {
     this.logger.log(`user ${data?.username} login OK`);
 
     if (this.autoRevokeToken === '1') {
-      const token = auth?.split(' ')[1];
-      this.logger.log(`delete access token: ${token}...`);
-      try {
-        await firstValueFrom(
-          this.httpService
-            .post(
-              `${this.misskey_url}/api/i/revoke-token`,
-              { token: token },
-              {
-                headers: { Authorization: auth, 'x-forwarded-for': remote_ip },
-              },
-            )
-            .pipe(
-              catchError((error: AxiosError) => {
-                this.logger.warn(error.response?.data);
-                throw new Error(`Error!`);
-              }),
-            ),
-        );
-        this.logger.log(`Access token ${token} deleted`);
-      } catch (err) {
-        this.logger.warn(`Access token ${token} delete error`);
-      }
+      await this.revokeToken(remote_ip, auth);
     }
     return data;
+  }
+  private async revokeToken(
+    remote_ip: string | undefined,
+    auth: string | undefined,
+  ) {
+    const token = auth?.split(' ')[1];
+    if (!token) return;
+    this.logger.log(`Try delete access token: ${token}...`);
+    try {
+      await firstValueFrom(
+        this.httpService
+          .post(
+            `${this.misskey_url}/api/i/revoke-token`,
+            { token: token },
+            {
+              headers: { Authorization: auth, 'x-forwarded-for': remote_ip },
+            },
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              this.logger.warn(error.response?.data);
+              throw new Error(`Error!`);
+            }),
+          ),
+      );
+      this.logger.log(`Access token ${token} deleted`);
+    } catch (err) {
+      this.logger.warn(`Access token ${token} delete error`);
+    }
   }
 }
