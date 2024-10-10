@@ -1,6 +1,6 @@
 services:
   api-proxy:
-    build: .
+    image: ghcr.io/yunochi/misskey-api-proxy:master
     restart: always
     ports:
       - "14438:14438"
